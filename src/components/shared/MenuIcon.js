@@ -1,15 +1,20 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Settings from '../../constants/settings';
-import UserSettings from './../../constants/userSettings';
+import { StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
+import IconMenu from '../../assets/icons/IconMenu.svg';
 
 const menuIcon = ({ onPress }) => {
-    return (<View></View>);
+    return (
+        <TouchableWithoutFeedback onPress={onPress}>
+            <View style={styles.container}>
+                <IconMenu height={30} width={28} />
+            </View>
+        </TouchableWithoutFeedback>
+    );
 }
 
 const styles = StyleSheet.create({
-    icon: {
-        marginLeft: 10
+    container: {
+        marginLeft: 14
     }
 })
 
