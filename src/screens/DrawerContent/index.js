@@ -24,7 +24,7 @@ export default (props) => {
                 <DrawerItem
                     icon={<IconProfile height={Settings.DrawerIconDefaultHeight} width={Settings.DrawerIconDefaultWidth} />}
                     itemText="Sign In"
-                    onPress={() => { }}
+                    onPress={() => { props.navigation.navigate('SignIn'); }}
                 />
             </DrawerSection>
             <DrawerSection>
