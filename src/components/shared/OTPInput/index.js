@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet, TextInput, Alert } from 'react-native';
 
 const OTPInput = ({ onEnterPin, onClearPin }) => {
     const [pin, setPin] = useState(0);
@@ -14,7 +14,6 @@ const OTPInput = ({ onEnterPin, onClearPin }) => {
     const fourthDigitRef = useRef('');
 
     useEffect(() => {
-        debugger;
         if (fourthDigit && !pin) {
             let pin = 0;
             if (firstDigit !== '' && secondDigit !== '' && thirdDigit !== '' && fourthDigit !== '') {
@@ -41,7 +40,8 @@ const OTPInput = ({ onEnterPin, onClearPin }) => {
                     value={firstDigit}
                     maxLength={1}
                     style={styles.digitInputBox}
-                    onChangeText={(value) => {
+                    onChange={(event) => {
+                        const value = event.nativeEvent.text;
                         setFirstDigit(value);
                         setSecondDigit('');
                         setThirdDigit('');
@@ -54,13 +54,23 @@ const OTPInput = ({ onEnterPin, onClearPin }) => {
                 />
             </View>
             <View style={styles.digitContainer}>
+                {/* todo: move literals to constant */}
                 <TextInput
                     ref={secondDigitRef}
                     keyboardType="number-pad"
                     value={secondDigit}
                     maxLength={1}
                     style={styles.digitInputBox}
-                    onChangeText={(value) => {
+                    onKeyPress={(event) => {
+                        // todo: move string literals to constant
+                        if (event.nativeEvent.key === 'Backspace') {
+                            if (secondDigit === '') {
+                                firstDigitRef.current.focus();
+                            }
+                        }
+                    }}
+                    onChange={(event) => {
+                        const value = event.nativeEvent.text;
                         setSecondDigit(value);
                         setThirdDigit('');
                         setFourthDigit('');
@@ -78,7 +88,16 @@ const OTPInput = ({ onEnterPin, onClearPin }) => {
                     value={thirdDigit}
                     maxLength={1}
                     style={styles.digitInputBox}
-                    onChangeText={(value) => {
+                    onKeyPress={(event) => {
+                        // todo: move string literals to constant
+                        if (event.nativeEvent.key === 'Backspace') {
+                            if (thirdDigit === '') {
+                                secondDigitRef.current.focus();
+                            }
+                        }
+                    }}
+                    onChange={(event) => {
+                        const value = event.nativeEvent.text;
                         setThirdDigit(value);
                         setFourthDigit('');
 
@@ -95,7 +114,16 @@ const OTPInput = ({ onEnterPin, onClearPin }) => {
                     value={fourthDigit}
                     maxLength={1}
                     style={styles.digitInputBox}
-                    onChangeText={(value) => {
+                    onKeyPress={(event) => {
+                        // todo: move string literals to constant
+                        if (event.nativeEvent.key === 'Backspace') {
+                            if (fourthDigit === '') {
+                                thirdDigitRef.current.focus();
+                            }
+                        }
+                    }}
+                    onChange={(event) => {
+                        const value = event.nativeEvent.text;
                         setFourthDigit(value);
                     }}
                 />

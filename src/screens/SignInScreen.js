@@ -3,20 +3,55 @@ import { View, StyleSheet, Text, TouchableWithoutFeedback, KeyboardAvoidingView,
 import PhoneInput from '../components/shared/PhoneInput';
 import OTPInput from '../components/shared/OTPInput';
 import AuthenticationImage from '../assets/images/Authentication.svg';
+import { requestOTP } from '../services/SignInService';
 
 const SignInScreen = () => {
     // todo: move to redux
-    const [OTP, setOTP] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState(null);
+    const [OTPEnteredByUser, setOTPEnteredByUser] = useState(null);
+    const [OTPSentToPhone, setOTPSentToPhone] = useState(null);
+    const [OTPSentMessage, setOTPSentMessage] = useState(null);
+    const [message, setMessage] = useState(null);
+
+    const getOtp = () => {
+        requestOTP(phoneNumber)
+            .then((data) => {
+                setOTPSentToPhone(data);
+                setOTPSentMessage('Enter the OTP sent to your phone')
+            })
+            .catch((error) => {
+                Alert.alert('OTP send error')
+            });
+    }
+
+    // todo: move to utils
+    const verifyOtp = (OTPEnteredByUser, OTPSentToPhone) => {
+        if (OTPEnteredByUser.toString() === OTPSentToPhone.toString()) {
+            Alert.alert('OTP verified');
+        }
+        else {
+            Alert.alert('Incorrect OTP');
+        }
+    }
 
     const onEnterPin = (pin) => {
-        Alert.alert(`You entered ${pin}`);
-        setOTP(pin);
+        setOTPEnteredByUser(pin);
     }
 
     const onClearPin = () => {
-        console.log('pin cleared')
-        setOTP(null);
+        setOTPEnteredByUser(null);
     }
+
+    const onEnterPhoneNumber = (phoneNumber) => {
+        setPhoneNumber(phoneNumber);
+    }
+
+    const onClearPhoneNumber = () => {
+        setPhoneNumber(null);
+        setOTPSentToPhone(null);
+        setOTPSentMessage(null);
+    }
+
 
     // todo: move to constants
     const countryCode = '+91';
@@ -27,7 +62,7 @@ const SignInScreen = () => {
             </View> */}
             <View style={styles.loginBannerContainer}>
                 <View style={styles.bannerImageContainer}>
-                    <AuthenticationImage height={150} width={150} />
+                    <AuthenticationImage height={110} width={110} />
                 </View>
             </View>
             <View style={styles.inputContainer}>
@@ -36,19 +71,57 @@ const SignInScreen = () => {
                         countryCode={countryCode}
                         placeholder="Mobile Number"
                         maxLength={10}
-                        onChange={() => { }}
+                        onEnterPhoneNumber={onEnterPhoneNumber}
+                        onClearPhoneNumber={onClearPhoneNumber}
                     />
                 </View>
-                <View style={styles.inputField}>
-                    <OTPInput onEnterPin={onEnterPin} onClearPin={onClearPin} />
-                </View>
-                <View style={styles.actionContainer}>
-                    <View style={styles.actionButton}>
-                        <TouchableWithoutFeedback onPress={() => { }}>
-                            <Text style={styles.actionButtonText}>Get OTP</Text>
-                        </TouchableWithoutFeedback>
+
+                {
+                    OTPSentToPhone &&
+                    <View style={styles.inputField}>
+                        <OTPInput onEnterPin={onEnterPin} onClearPin={onClearPin} />
+                    </View>
+                }
+
+                {
+                    /* todo: move literal to constant */
+                    // todo: move message component to shared component
+                    OTPSentMessage &&
+                    <View style={styles.otpSentMessageContainer}>
+                        <View>
+                            <Text style={styles.message('info', OTPSentMessage)}>{OTPSentMessage}</Text>
+                        </View>
+                    </View>
+                }
+
+
+                {/* todo: move literal to constant */}
+                <View>
+                    <View>
+                        <Text style={styles.message('info', message)}>{message}</Text>
                     </View>
                 </View>
+
+                {
+                    !OTPSentToPhone &&
+                    <View style={styles.actionContainer}>
+                        <View style={styles.actionButton(phoneNumber)}>
+                            <TouchableWithoutFeedback onPress={() => { phoneNumber && getOtp() }}>
+                                <Text style={styles.actionButtonText}>Get OTP</Text>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </View>
+                }
+                {
+                    OTPSentToPhone &&
+                    <View style={styles.actionContainer}>
+                        <View style={styles.actionButton(OTPEnteredByUser)}>
+                            <TouchableWithoutFeedback onPress={() => { OTPEnteredByUser && verifyOtp(OTPEnteredByUser, OTPSentToPhone) }}>
+                                <Text style={styles.actionButtonText}>Verify OTP</Text>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </View>
+                }
             </View>
         </View>
     )
@@ -66,7 +139,7 @@ const styles = StyleSheet.create({
     },
     bannerImageContainer: {
         // flex: 1,
-        marginVertical: 40,
+        marginVertical: 50,
         alignContent: 'center'
     },
     loginHeaderTextContainer: {
@@ -93,17 +166,39 @@ const styles = StyleSheet.create({
         marginTop: 20,
         alignItems: 'center'
     },
-    actionButton: {
+    actionButton: (enabled) => ({
         width: 'auto',
         paddingVertical: 6,
         paddingHorizontal: 20,
-        backgroundColor: '#0079bd',
+        // todo: move color codes to theme setting
+        backgroundColor: enabled ? '#0079bd' : '#C7C7C7',
         borderRadius: 4
-    },
+    }),
     actionButtonText: {
         color: '#ffffff',
         fontWeight: 'bold',
         fontSize: 16
+    },
+    otpSentMessageContainer: {
+        marginBottom: 20
+    },
+    message: (type, text) => {
+        let color = '#000000';
+        // todo: move color code to theme, literals to constants
+        if (type === 'success') {
+            color = '#1aac54'
+        }
+        else if (type === 'error') {
+            color = '#ed0303'
+        }
+
+        return {
+            display: text ? 'flex' : 'none',
+            width: '100%',
+            textAlign: 'left',
+            fontSize: 16,
+            color
+        }
     }
 })
 

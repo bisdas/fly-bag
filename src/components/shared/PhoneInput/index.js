@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TextInput } from 'react-native';
 
-const PhoneInput = ({ countryCode, onChange, maxLength, placeholder }) => {
+const PhoneInput = ({ countryCode, maxLength, placeholder, onEnterPhoneNumber, onClearPhoneNumber }) => {
+    const [phoneNumber, setPhoneNumber] = useState(null);
+
+    useEffect(() => {
+        // todo: move phone number length to constants
+        if (phoneNumber && phoneNumber.toString().length === 10) {
+            onEnterPhoneNumber(phoneNumber);
+        }
+        else {
+            onClearPhoneNumber();
+        }
+
+    }, [phoneNumber]);
+
+
     return (
         <View style={styles.inputContainer}>
             <View style={styles.inputField}>
@@ -15,7 +29,9 @@ const PhoneInput = ({ countryCode, onChange, maxLength, placeholder }) => {
                             maxLength={maxLength}
                             placeholder={placeholder}
                             style={styles.phoneInputBox}
-                            onChange={onChange}
+                            onChange={(event) => {
+                                setPhoneNumber(event.nativeEvent.text);
+                            }}
                         />
                     </View>
                 </View>
